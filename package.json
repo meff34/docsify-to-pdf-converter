@@ -1,0 +1,19 @@
+{
+  "name": "docsify-pdf-converter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "nodemon src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "html-pdf": "^2.2.0",
+    "markdown-styles": "^3.1.10",
+    "prettier": "^1.15.3",
+    "remark-parse": "^6.0.3",
+    "rimraf": "^2.6.3"
+  }
+}
