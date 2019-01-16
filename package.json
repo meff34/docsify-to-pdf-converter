@@ -19,6 +19,7 @@
     "markdown-link-extractor": "^1.2.0",
     "markdown-styles": "^3.1.10",
     "prettier": "^1.15.3",
+    "rcfile": "^1.0.3",
     "rimraf": "^2.6.3"
   }
 }
