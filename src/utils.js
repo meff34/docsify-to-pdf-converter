@@ -2,20 +2,43 @@ const fs = require("fs");
 const util = require("util");
 const path = require("path");
 const rimraf = require("rimraf");
+require("colors");
 
-const [mkdir] = [fs.mkdir].map(fn => util.promisify(fn));
+const logger = require("./logger.js");
+
+const [mkdir, exists] = [fs.mkdir, fs.exists].map(fn => util.promisify(fn));
+
+const safetyMkdir = async (rawPath, removeTemp) => {
+  const resolvedPath = path.resolve(rawPath);
+
+  const isExist = await exists(resolvedPath);
+
+  if (!isExist) {
+    return await mkdir(resolvedPath);
+  }
+
+  logger.warn(`Path ${resolvedPath} is already exists, will use it..`);
+
+  if (removeTemp) {
+    logger.warn("It will be deleted\n");
+  }
+
+  return Promise.resolve();
+};
 
 const removeArtifacts = paths =>
   Promise.all([
-    paths.map(path => new Promise(resolve => rimraf(path, resolve)))
+    paths.map(path => new Promise(resolve => rimraf(path, resolve))),
   ]);
 
-const prepareEnv = pathToStatic => () =>
-  Promise.all([mkdir(path.resolve(pathToStatic))]).catch(err => {
-    console.error("prepareEnv", err);
-  });
+const prepareEnv = ({ pathToStatic, removeTemp }) => () =>
+  Promise.all([safetyMkdir(path.resolve(pathToStatic), removeTemp)]).catch(
+    err => {
+      console.error("prepareEnv", err);
+    },
+  );
 
-module.exports = ({ pathToStatic }) => ({
+module.exports = config => ({
   removeArtifacts,
-  prepareEnv: prepareEnv(pathToStatic)
+  prepareEnv: prepareEnv(config),
 });

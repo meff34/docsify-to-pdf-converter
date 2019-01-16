@@ -1,6 +1,7 @@
 const fs = require("fs");
 const util = require("util");
 const path = require("path");
+const logger = require("./logger.js");
 
 const [readdir, readFile, writeFile, mkdir] = [
   fs.readdir,
@@ -9,27 +10,35 @@ const [readdir, readFile, writeFile, mkdir] = [
   fs.mkdir,
 ].map(fn => util.promisify(fn));
 
-const combineMarkdowns = (
+const combineMarkdowns = ({
   pathToStatic,
   mainMdFilename,
-  dirName,
-) => async () => {
+  source,
+}) => async () => {
   try {
-    const filenames = await readdir(path.resolve(dirName));
+    const filenames = await readdir(path.resolve(source));
 
     const files = await Promise.all(
-      await filenames.map(async filename => ({
-        content: await readFile(path.resolve(dirName, filename), {
-          encoding: "utf8",
-        }),
-        name: filename,
-      })),
+      await filenames
+        // .map(filename => {
+        //   const a = filename;
+        //
+        //   return true;
+        // })
+        .map(async filename => ({
+          content: await readFile(path.resolve(source, filename), {
+            encoding: "utf8",
+          }),
+          name: filename,
+        })),
     );
 
-    await writeFile(
-      path.resolve(pathToStatic, mainMdFilename),
-      files.map(({ content }) => content).join("\n\n"),
-    );
+    try {
+      const content = files.map(({ content }) => content).join("\n\n");
+      await writeFile(path.resolve(pathToStatic, mainMdFilename), content);
+    } catch (e) {
+      logger.err(e);
+    }
 
     return path.resolve(pathToStatic, mainMdFilename);
   } catch (err) {
@@ -38,6 +47,6 @@ const combineMarkdowns = (
   }
 };
 
-module.exports = ({ pathToStatic, mainMdFilename, source }) => ({
-  combineMarkdowns: combineMarkdowns(pathToStatic, mainMdFilename, source),
+module.exports = config => ({
+  combineMarkdowns: combineMarkdowns(config),
 });
