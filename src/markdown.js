@@ -3,34 +3,47 @@ const util = require("util");
 const path = require("path");
 const logger = require("./logger.js");
 
-const [readdir, readFile, writeFile, mkdir] = [
-  fs.readdir,
+const [readFile, writeFile, exists] = [
   fs.readFile,
   fs.writeFile,
-  fs.mkdir,
+  fs.exists,
 ].map(fn => util.promisify(fn));
 
+const isFileExcluded = (blackList, filePath) => {
+  return blackList.map(item => path.resolve(item)).includes(filePath);
+};
+
 const combineMarkdowns = ({
+  sidebarContent,
   pathToStatic,
   mainMdFilename,
   source,
-}) => async () => {
+  excluded,
+}) => async links => {
   try {
-    const filenames = await readdir(path.resolve(source));
+    const filteredFilenames = links.filter(
+      filename => !isFileExcluded(excluded, path.resolve(source, filename)),
+    );
 
     const files = await Promise.all(
-      await filenames
-        // .map(filename => {
-        //   const a = filename;
-        //
-        //   return true;
-        // })
-        .map(async filename => ({
-          content: await readFile(path.resolve(source, filename), {
+      await filteredFilenames.map(async filename => {
+        const fileExist = await exists(path.resolve(source, filename));
+
+        if (fileExist) {
+          const content = await readFile(path.resolve(source, filename), {
             encoding: "utf8",
-          }),
-          name: filename,
-        })),
+          });
+
+          return {
+            content,
+            name: filename,
+          };
+        }
+
+        throw new Error(
+          `file ${filename} is not exist, but listed in ${sidebarContent}`,
+        );
+      }),
     );
 
     try {
