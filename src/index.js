@@ -13,15 +13,25 @@ const config = {
   removeTemp: true,
 };
 
-const { pathToStatic, mainMdFilename, pathToPublic } = config;
+// const { pathToStatic, mainMdFilename, pathToPublic } = config;
+//
+// const { render, afterRender } = require("./statics.js")(config);
+// const { combineMarkdowns } = require("./markdown.js")(config);
+// const { removeArtifacts, prepareEnv } = require("./utils.js")(config);
+// const { read } = require("./markdown-analyze.js")(config);
 
-const { render, afterRender } = require("./statics.js")(config);
-const { combineMarkdowns } = require("./markdown.js")(config);
-const { removeArtifacts, prepareEnv } = require("./utils.js")(config);
-const { read } = require("./markdown-analyze.js")(config);
+const run = config => {
+  const { pathToStatic, mainMdFilename, pathToPublic } = config;
 
-const run = () =>
-  removeArtifacts([path.resolve(pathToStatic), path.resolve(pathToPublic)])
+  const { render, afterRender } = require("./statics.js")(config);
+  const { combineMarkdowns } = require("./markdown.js")(config);
+  const { removeArtifacts, prepareEnv } = require("./utils.js")(config);
+  const { read } = require("./markdown-analyze.js")(config);
+
+  return removeArtifacts([
+    path.resolve(pathToStatic),
+    path.resolve(pathToPublic),
+  ])
     .then(prepareEnv)
     .then(read)
     .then(combineMarkdowns)
@@ -31,6 +41,7 @@ const run = () =>
     .then(
       () => config.removeTemp && removeArtifacts([path.resolve(pathToStatic)]),
     );
+};
 
 module.exports = () =>
   run().catch(err => {

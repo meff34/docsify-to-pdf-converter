@@ -1,24 +1,24 @@
 {
-  "name": "docsify-pdf-converter",
+  "name": "demo-docsify-pdf-converter",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "converter": "./bin/eslint.js"
+  },
   "scripts": {
-    "start": "nodemon src/index.js"
+    "start": "nodemon src/index.js",
+    "patch-release": "npm version patch && npm publish && git push --follow-tags"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@textlint/markdown-to-ast": "^6.1.2",
     "colors": "^1.3.3",
     "html-pdf": "^2.2.0",
-    "lodash": "^4.17.11",
     "markdown-link-extractor": "^1.2.0",
     "markdown-styles": "^3.1.10",
     "prettier": "^1.15.3",
-    "remark": "^10.0.1",
-    "remark-parse": "^6.0.3",
     "rimraf": "^2.6.3"
   }
 }
