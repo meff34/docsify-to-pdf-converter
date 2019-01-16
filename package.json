@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "converter": "./bin/eslint.js"
+    "converter": "./bin/converter.js"
   },
   "scripts": {
     "start": "nodemon src/index.js",
