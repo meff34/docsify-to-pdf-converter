@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "converter": "./bin/converter.js"
+    "converter": "bin/cli"
   },
   "scripts": {
     "start": "nodemon src/index.js",

@@ -6,11 +6,12 @@ const logger = require("./logger.js");
 const config = {
   pathToStatic: "static",
   mainMdFilename: "main.md",
+  removeTemp: true,
+
   excluded: ["docs/_sidebar.md"],
   sidebarContent: "docs/_sidebar.md",
   source: "docs",
   pathToPublic: "./public/readme.pdf",
-  removeTemp: true,
 };
 
 // const { pathToStatic, mainMdFilename, pathToPublic } = config;
@@ -20,7 +21,7 @@ const config = {
 // const { removeArtifacts, prepareEnv } = require("./utils.js")(config);
 // const { read } = require("./markdown-analyze.js")(config);
 
-const run = config => {
+const run = () => {
   const { pathToStatic, mainMdFilename, pathToPublic } = config;
 
   const { render, afterRender } = require("./statics.js")(config);
@@ -36,7 +37,7 @@ const run = config => {
     .then(read)
     .then(combineMarkdowns)
     .then(pathToFile => render(pathToFile))
-    .then(() => afterRender(mainMdFilename))
+    .then(afterRender)
     .then(() => logger.success(config.pathToPublic))
     .then(
       () => config.removeTemp && removeArtifacts([path.resolve(pathToStatic)]),
