@@ -3,7 +3,7 @@ require("colors");
 
 const logger = require("./logger.js");
 
-const config = {
+const defaultConfig = {
   pathToStatic: "static",
   mainMdFilename: "main.md",
   removeTemp: true,
@@ -21,7 +21,7 @@ const config = {
 // const { removeArtifacts, prepareEnv } = require("./utils.js")(config);
 // const { read } = require("./markdown-analyze.js")(config);
 
-const run = () => {
+const run = (config) => {
   const { pathToStatic, mainMdFilename, pathToPublic } = config;
 
   const { render, afterRender } = require("./statics.js")(config);
@@ -44,8 +44,11 @@ const run = () => {
     );
 };
 
-module.exports = () =>
-  run().catch(err => {
+module.exports = (config) =>
+  run({
+    ...defaultConfig,
+    ...config,
+  }).catch(err => {
     logger.err("run error", err);
     removeArtifacts([path.resolve(pathToStatic), path.resolve(pathToPublic)]);
   });
