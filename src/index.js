@@ -1,51 +1,50 @@
 const path = require("path");
+const { merge } = require("lodash");
 require("colors");
 
 const logger = require("./logger.js");
 
-const config = {
+const defaultConfig = {
   pathToStatic: "static",
   mainMdFilename: "main.md",
+
+  markdownStylesLayout: "jasonm23-swiss",
   removeTemp: true,
-
-  excluded: ["docs/_sidebar.md"],
-  sidebarContent: "docs/_sidebar.md",
-  source: "docs",
-  pathToPublic: "./public/readme.pdf",
+  contents: "docs/_sidebar.md",
+  pathToPublic: "./pdf/readme.pdf",
+  pdfOptions: { format: "A4" },
 };
 
-// const { pathToStatic, mainMdFilename, pathToPublic } = config;
-//
-// const { render, afterRender } = require("./statics.js")(config);
-// const { combineMarkdowns } = require("./markdown.js")(config);
-// const { removeArtifacts, prepareEnv } = require("./utils.js")(config);
-// const { read } = require("./markdown-analyze.js")(config);
+const run = incomingConfig => {
+  const config = merge(defaultConfig, incomingConfig);
+  const { pathToStatic } = config;
 
-const run = () => {
-  const { pathToStatic, mainMdFilename, pathToPublic } = config;
+  const { markdownToHtml, htmlToPdf } = require("./render.js")(config);
+  const { combineMarkdowns } = require("./markdown-combine.js")(config);
+  const { removeArtifacts, prepareEnv, cleanUp } = require("./utils.js")(
+    config,
+  );
+  const { createRoadMap } = require("./contents-builder.js")(config);
 
-  const { render, afterRender } = require("./statics.js")(config);
-  const { combineMarkdowns } = require("./markdown.js")(config);
-  const { removeArtifacts, prepareEnv } = require("./utils.js")(config);
-  const { read } = require("./markdown-analyze.js")(config);
-
-  return removeArtifacts([
-    path.resolve(pathToStatic),
-    path.resolve(pathToPublic),
-  ])
+  return cleanUp()
     .then(prepareEnv)
-    .then(read)
+    .then(createRoadMap)
     .then(combineMarkdowns)
-    .then(pathToFile => render(pathToFile))
-    .then(afterRender)
-    .then(() => logger.success(config.pathToPublic))
-    .then(
-      () => config.removeTemp && removeArtifacts([path.resolve(pathToStatic)]),
-    );
+    .then(markdownToHtml)
+    .then(htmlToPdf)
+    .then(() => logger.success(path.resolve(config.pathToPublic)))
+    .then(() => {
+      if (config.removeTemp) {
+        removeArtifacts([path.resolve(pathToStatic)]);
+      }
+    })
+    .catch(err => {
+      logger.err("run error", err);
+
+      if (config.removeTemp) {
+        removeArtifacts([path.resolve(pathToStatic)]);
+      }
+    });
 };
 
-module.exports = () =>
-  run().catch(err => {
-    logger.err("run error", err);
-    removeArtifacts([path.resolve(pathToStatic), path.resolve(pathToPublic)]);
-  });
+module.exports = run;

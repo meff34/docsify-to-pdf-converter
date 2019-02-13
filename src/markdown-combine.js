@@ -9,28 +9,18 @@ const [readFile, writeFile, exists] = [
   fs.exists,
 ].map(fn => util.promisify(fn));
 
-const isFileExcluded = (blackList, filePath) => {
-  return blackList.map(item => path.resolve(item)).includes(filePath);
-};
-
 const combineMarkdowns = ({
-  sidebarContent,
+  contents,
   pathToStatic,
   mainMdFilename,
-  source,
-  excluded,
 }) => async links => {
   try {
-    const filteredFilenames = links.filter(
-      filename => !isFileExcluded(excluded, path.resolve(source, filename)),
-    );
-
     const files = await Promise.all(
-      await filteredFilenames.map(async filename => {
-        const fileExist = await exists(path.resolve(source, filename));
+      await links.map(async filename => {
+        const fileExist = await exists(filename);
 
         if (fileExist) {
-          const content = await readFile(path.resolve(source, filename), {
+          const content = await readFile(filename, {
             encoding: "utf8",
           });
 
@@ -41,21 +31,24 @@ const combineMarkdowns = ({
         }
 
         throw new Error(
-          `file ${filename} is not exist, but listed in ${sidebarContent}`,
+          `file ${filename} is not exist, but listed in ${contents}`,
         );
       }),
     );
 
+    const resultFilePath = path.resolve(pathToStatic, mainMdFilename);
+
     try {
       const content = files.map(({ content }) => content).join("\n\n");
-      await writeFile(path.resolve(pathToStatic, mainMdFilename), content);
+      await writeFile(resultFilePath, content);
     } catch (e) {
       logger.err(e);
+      throw e;
     }
 
-    return path.resolve(pathToStatic, mainMdFilename);
+    return resultFilePath;
   } catch (err) {
-    console.error("combineMarkdowns", err);
+    logger.err("combineMarkdowns", err);
     throw err;
   }
 };
