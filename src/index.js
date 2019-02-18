@@ -1,7 +1,5 @@
 const path = require("path");
 const { merge } = require("lodash");
-require("colors");
-
 const logger = require("./logger.js");
 
 const defaultConfig = {
@@ -13,38 +11,35 @@ const defaultConfig = {
   contents: "docs/_sidebar.md",
   pathToPublic: "./pdf/readme.pdf",
   pdfOptions: { format: "A4" },
+  emulateMedia: "print",
 };
 
-const run = incomingConfig => {
+const run = async incomingConfig => {
   const config = merge(defaultConfig, incomingConfig);
-  const { pathToStatic } = config;
+
+  logger.info("config with defaults:");
+  console.log(JSON.stringify(config, "", 2));
+  console.log("\n");
 
   const { markdownToHtml, htmlToPdf } = require("./render.js")(config);
   const { combineMarkdowns } = require("./markdown-combine.js")(config);
-  const { removeArtifacts, prepareEnv, cleanUp } = require("./utils.js")(
-    config,
-  );
+  const { closeProcess, prepareEnv, cleanUp } = require("./utils.js")(config);
   const { createRoadMap } = require("./contents-builder.js")(config);
 
-  return cleanUp()
-    .then(prepareEnv)
-    .then(createRoadMap)
-    .then(combineMarkdowns)
-    .then(markdownToHtml)
-    .then(htmlToPdf)
-    .then(() => logger.success(path.resolve(config.pathToPublic)))
-    .then(() => {
-      if (config.removeTemp) {
-        removeArtifacts([path.resolve(pathToStatic)]);
-      }
-    })
-    .catch(err => {
-      logger.err("run error", err);
+  try {
+    await cleanUp();
+    await prepareEnv();
+    const roadMap = await createRoadMap();
+    const markdownBundlePath = await combineMarkdowns(roadMap);
+    await markdownToHtml(markdownBundlePath);
+    await htmlToPdf();
 
-      if (config.removeTemp) {
-        removeArtifacts([path.resolve(pathToStatic)]);
-      }
-    });
+    logger.success(path.resolve(config.pathToPublic));
+  } catch (error) {
+    logger.err("run error", error);
+  } finally {
+    closeProcess(0);
+  }
 };
 
 module.exports = run;

@@ -21,19 +21,14 @@ const safetyMkdir = async rawPath => {
   return Promise.resolve();
 };
 
-const removeArtifacts = paths =>
-  Promise.all([
-    paths.map(path => new Promise(resolve => rimraf(path, resolve))),
-  ]);
+const removeArtifacts = async paths =>
+  Promise.all(paths.map(path => new Promise(resolve => rimraf(path, resolve))));
 
 const prepareEnv = ({ pathToStatic, pathToPublic }) => () => {
   const pathToStaticDir = path.resolve(pathToStatic);
   const pathToPublicDir = path.dirname(path.resolve(pathToPublic));
 
-  return Promise.all([
-    safetyMkdir(pathToStaticDir),
-    safetyMkdir(pathToPublicDir),
-  ]).catch(err => {
+  return Promise.all([safetyMkdir(pathToStaticDir), safetyMkdir(pathToPublicDir)]).catch(err => {
     logger.err("prepareEnv", err);
   });
 };
@@ -60,8 +55,16 @@ const cleanUp = ({ pathToStatic, pathToPublic, removeTemp }) => async () => {
   }
 };
 
+const closeProcess = ({ pathToStatic, removeTemp }) => async code => {
+  if (removeTemp) {
+    await removeArtifacts([path.resolve(pathToStatic)]);
+  }
+
+  return process.exit(code);
+};
+
 module.exports = config => ({
-  removeArtifacts,
   prepareEnv: prepareEnv(config),
   cleanUp: cleanUp(config),
+  closeProcess: closeProcess(config),
 });
