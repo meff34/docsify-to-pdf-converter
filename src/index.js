@@ -1,11 +1,10 @@
 const path = require("path");
 const { merge } = require("lodash");
-const logger = require("./logger.js");
+const logger = require("./logger");
 
 const defaultConfig = {
   pathToStatic: "static",
   mainMdFilename: "main.md",
-
   markdownStylesLayout: "jasonm23-swiss",
   removeTemp: true,
   contents: "docs/_sidebar.md",
@@ -17,8 +16,8 @@ const defaultConfig = {
 const run = async incomingConfig => {
   const config = merge(defaultConfig, incomingConfig);
 
-  logger.info("config with defaults:");
-  console.log(JSON.stringify(config, "", 2));
+  logger.info("Build with settings:");
+  console.log(JSON.stringify(config, null, 2));
   console.log("\n");
 
   const { markdownToHtml, htmlToPdf } = require("./render.js")(config);
