@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "converter": ".bin/cli",
-    "docsify-pdf-converter": ".bin/cli"
+    "converter": ".bin/cli.js",
+    "docsify-pdf-converter": ".bin/cli.js"
   },
   "scripts": {
     "patch-release": "npm version patch && npm publish && git push --follow-tags"
