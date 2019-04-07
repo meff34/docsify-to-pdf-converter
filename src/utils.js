@@ -3,6 +3,7 @@ const util = require("util");
 const path = require("path");
 const rimraf = require("rimraf");
 const yesno = require("yesno");
+const findFreePort = require('find-free-port');
 require("colors");
 
 const logger = require("./logger.js");

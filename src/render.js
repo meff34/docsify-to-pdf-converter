@@ -2,28 +2,41 @@ const path = require("path");
 const puppeteer = require("puppeteer");
 const logger = require("./logger.js");
 
-const prepareDocToPrint = async page => {
-  return await page.evaluate(() => {
-    document.querySelector('.sidebar-toggle').click();
-  })
+const preparePageToPrint = page => {
+  return page.evaluate(() => {
+    document.querySelector("nav").remove();
+    document.querySelector("aside.sidebar").remove();
+    document.querySelector("button.sidebar-toggle").remove();
+    document.querySelector("section.content").style = `
+      position: static;
+      padding-top: 0;
+    `;
+  });
 };
 
-const renderPdf = async ({ pathToStatic, pathToPublic, pdfOptions, emulateMedia }) => {
+const renderPdf = async ({
+  mainMdFilename,
+  pathToStatic,
+  pathToPublic,
+  pdfOptions,
+  docsifyRendererPort,
+  emulateMedia,
+}) => {
   const browser = await puppeteer.launch({
-    headless: false,
     defaultViewport: {
       width: 1200,
       height: 1000,
-    }
+    },
   });
   try {
+    const mainMdFilenameWithoutExt = path.parse(mainMdFilename).name;
+    const docsifyUrl = `http://localhost:${docsifyRendererPort}/#/${pathToStatic}/${mainMdFilenameWithoutExt}`;
+
     const page = await browser.newPage();
-    // await page.goto(`file:${path.resolve(pathToStatic, "index.html")}`);
-    await page.goto(`http://localhost:3000/#/static/main`);
+    await page.goto(docsifyUrl, { waitUntil: "networkidle0" });
+    await preparePageToPrint(page);
 
-    await prepareDocToPrint(page);
-
-    await page.emulateMedia('screen');
+    await page.emulateMedia(emulateMedia);
     await page.pdf({
       ...pdfOptions,
       path: path.resolve(pathToPublic),
@@ -42,11 +55,19 @@ const htmlToPdf = ({
   pathToPublic,
   pdfOptions,
   removeTemp,
+  docsifyRendererPort,
   emulateMedia,
 }) => async () => {
   const { closeProcess } = require("./utils.js")({ pathToStatic, removeTemp });
   try {
-    return await renderPdf({ pathToStatic, pathToPublic, pdfOptions, emulateMedia });
+    return await renderPdf({
+      mainMdFilename,
+      pathToStatic,
+      pathToPublic,
+      pdfOptions,
+      docsifyRendererPort,
+      emulateMedia,
+    });
   } catch (err) {
     logger.err("puppeteer renderer error:", err);
     await closeProcess(1);
