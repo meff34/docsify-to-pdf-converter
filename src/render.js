@@ -1,39 +1,29 @@
-const fs = require("fs");
-const util = require("util");
 const path = require("path");
-const markdownStyles = require("markdown-styles");
 const puppeteer = require("puppeteer");
 const logger = require("./logger.js");
 
-const [rename] = [fs.rename].map(fn => util.promisify(fn));
-
-const markdownToHtml = ({ pathToStatic, markdownStylesLayout, removeTemp }) => async pathToFile => {
-  const { closeProcess } = require("./utils.js")({ pathToStatic, removeTemp });
-
-  try {
-    await new Promise(resolve => {
-      markdownStyles.render(
-        markdownStyles.resolveArgs({
-          input: path.resolve(pathToFile),
-          output: pathToStatic,
-          layout: markdownStylesLayout,
-        }),
-        resolve,
-      );
-    });
-  } catch (err) {
-    logger.err("markdown-styles renderer error:", err);
-    await closeProcess(1);
-  }
+const prepareDocToPrint = async page => {
+  return await page.evaluate(() => {
+    document.querySelector('.sidebar-toggle').click();
+  })
 };
 
 const renderPdf = async ({ pathToStatic, pathToPublic, pdfOptions, emulateMedia }) => {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: false,
+    defaultViewport: {
+      width: 1200,
+      height: 1000,
+    }
+  });
   try {
     const page = await browser.newPage();
-    await page.goto(`file:${path.resolve(pathToStatic, "index.html")}`);
+    // await page.goto(`file:${path.resolve(pathToStatic, "index.html")}`);
+    await page.goto(`http://localhost:3000/#/static/main`);
 
-    await page.emulateMedia(emulateMedia);
+    await prepareDocToPrint(page);
+
+    await page.emulateMedia('screen');
     await page.pdf({
       ...pdfOptions,
       path: path.resolve(pathToPublic),
@@ -54,13 +44,8 @@ const htmlToPdf = ({
   removeTemp,
   emulateMedia,
 }) => async () => {
-  const oldHtmlFile = path.resolve(pathToStatic, `${path.basename(mainMdFilename, "md")}html`);
   const { closeProcess } = require("./utils.js")({ pathToStatic, removeTemp });
   try {
-    const newHtmlFile = path.resolve(pathToStatic, "index.html");
-
-    await rename(oldHtmlFile, newHtmlFile);
-
     return await renderPdf({ pathToStatic, pathToPublic, pdfOptions, emulateMedia });
   } catch (err) {
     logger.err("puppeteer renderer error:", err);
@@ -69,6 +54,5 @@ const htmlToPdf = ({
 };
 
 module.exports = config => ({
-  markdownToHtml: markdownToHtml(config),
   htmlToPdf: htmlToPdf(config),
 });

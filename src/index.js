@@ -5,7 +5,6 @@ const logger = require("./logger");
 const defaultConfig = {
   pathToStatic: "static",
   mainMdFilename: "main.md",
-  markdownStylesLayout: "jasonm23-swiss",
   removeTemp: true,
   contents: "docs/_sidebar.md",
   pathToPublic: "./pdf/readme.pdf",
@@ -20,7 +19,7 @@ const run = async incomingConfig => {
   console.log(JSON.stringify(config, null, 2));
   console.log("\n");
 
-  const { markdownToHtml, htmlToPdf } = require("./render.js")(config);
+  const { htmlToPdf } = require("./render.js")(config);
   const { combineMarkdowns } = require("./markdown-combine.js")(config);
   const { closeProcess, prepareEnv, cleanUp } = require("./utils.js")(config);
   const { createRoadMap } = require("./contents-builder.js")(config);
@@ -29,8 +28,7 @@ const run = async incomingConfig => {
     await cleanUp();
     await prepareEnv();
     const roadMap = await createRoadMap();
-    const markdownBundlePath = await combineMarkdowns(roadMap);
-    await markdownToHtml(markdownBundlePath);
+    await combineMarkdowns(roadMap);
     await htmlToPdf();
 
     logger.success(path.resolve(config.pathToPublic));

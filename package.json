@@ -23,7 +23,6 @@
     "is-url": "^1.2.4",
     "lodash": "^4.17.11",
     "markdown-link-extractor": "^1.2.0",
-    "markdown-styles": "^3.1.10",
     "puppeteer": "^1.12.2",
     "rcfile": "^1.0.3",
     "rimraf": "^2.6.3",

@@ -39,7 +39,7 @@ const combineMarkdowns = ({
     const resultFilePath = path.resolve(pathToStatic, mainMdFilename);
 
     try {
-      const content = files.map(({ content }) => content).join("\n\n");
+      const content = files.map(({ content }) => content).join("\n\n\n\n");
       await writeFile(resultFilePath, content);
     } catch (e) {
       logger.err(e);
