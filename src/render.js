@@ -4,9 +4,16 @@ const logger = require("./logger.js");
 
 const preparePageToPrint = page => {
   return page.evaluate(() => {
-    document.querySelector("nav").remove();
-    document.querySelector("aside.sidebar").remove();
-    document.querySelector("button.sidebar-toggle").remove();
+    const nav = document.querySelector("nav");
+    if (nav) nav.remove();
+
+    const aside = document.querySelector("aside.sidebar");
+    if (aside) aside.remove();
+
+    const button = document.querySelector("button.sidebar-toggle");
+    if (button) button.remove();
+
+
     document.querySelector("section.content").style = `
       position: static;
       padding-top: 0;

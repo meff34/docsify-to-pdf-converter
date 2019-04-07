@@ -1,20 +1,30 @@
 const fs = require("fs");
 const util = require("util");
 const path = require("path");
+const { uniq } = require("lodash");
 const logger = require("./logger.js");
+const cp = require("copyfiles");
+const beautifyImages = require("./beautify-image-paths.js");
 
-const [readFile, writeFile, exists] = [
-  fs.readFile,
-  fs.writeFile,
-  fs.exists,
-].map(fn => util.promisify(fn));
+const [readFile, writeFile, exists] = [fs.readFile, fs.writeFile, fs.exists].map(fn =>
+  util.promisify(fn),
+);
 
-const combineMarkdowns = ({
-  contents,
-  pathToStatic,
-  mainMdFilename,
-}) => async links => {
+const combineMarkdowns = ({ contents, pathToStatic, mainMdFilename }) => async links => {
   try {
+    const images = uniq(links.map(link => path.dirname(link)))
+      .map(dir => path.relative(process.cwd(), dir))
+      .map(dir => [`${dir}/**/*.jpg`, `${dir}/**/*.png`, `${dir}/**/*.gif`])
+      .reduce((acc, item) => [...acc, ...item], []);
+
+    const a = [...images, pathToStatic];
+
+    await cp(a, (...args) => {
+      const c = args;
+
+      const b = a;
+    });
+
     const files = await Promise.all(
       await links.map(async filename => {
         const fileExist = await exists(filename);
@@ -30,16 +40,17 @@ const combineMarkdowns = ({
           };
         }
 
-        throw new Error(
-          `file ${filename} is not exist, but listed in ${contents}`,
-        );
+        throw new Error(`file ${filename} is not exist, but listed in ${contents}`);
       }),
     );
 
     const resultFilePath = path.resolve(pathToStatic, mainMdFilename);
 
     try {
-      const content = files.map(({ content }) => content).join("\n\n\n\n");
+      const content = files
+        .map(({ content, name }) => beautifyImages({ content, filePath: name }))
+        .map(({ content }) => content)
+        .join("\n\n\n\n");
       await writeFile(resultFilePath, content);
     } catch (e) {
       logger.err(e);
