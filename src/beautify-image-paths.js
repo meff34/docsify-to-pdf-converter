@@ -2,7 +2,7 @@ const path = require("path");
 const markdownLinkExtractor = require("markdown-link-extractor");
 const isUrl = require("is-url");
 
-module.exports = ({ content, filePath }) => {
+module.exports = (content, filePath) => {
   let markdown = content;
   const dir = path.dirname(filePath);
 

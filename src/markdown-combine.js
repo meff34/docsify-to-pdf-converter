@@ -33,8 +33,7 @@ const combineMarkdowns = ({ contents, pathToStatic, mainMdFilename }) => async l
 
     try {
       const content = files
-        .map(({ content, name }) => beautifyImages({ content, filePath: name }))
-        .map(({ content }) => content)
+        .map(({ content, name }) => beautifyImages(content, name))
         .join("\n\n\n\n");
       await writeFile(resultFilePath, content);
     } catch (e) {
