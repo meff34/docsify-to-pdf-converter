@@ -1,25 +1,7 @@
 const path = require("path");
 const puppeteer = require("puppeteer");
 const logger = require("./logger.js");
-
-const preparePageToPrint = page => {
-  return page.evaluate(() => {
-    const nav = document.querySelector("nav");
-    if (nav) nav.remove();
-
-    const aside = document.querySelector("aside.sidebar");
-    if (aside) aside.remove();
-
-    const button = document.querySelector("button.sidebar-toggle");
-    if (button) button.remove();
-
-
-    document.querySelector("section.content").style = `
-      position: static;
-      padding-top: 0;
-    `;
-  });
-};
+const runSandboxScript = require("./run-sandbox-script.js");
 
 const renderPdf = async ({
   mainMdFilename,
@@ -41,7 +23,8 @@ const renderPdf = async ({
 
     const page = await browser.newPage();
     await page.goto(docsifyUrl, { waitUntil: "networkidle0" });
-    await preparePageToPrint(page);
+
+    await runSandboxScript(page, { mainMdFilenameWithoutExt, pathToStatic });
 
     await page.emulateMedia(emulateMedia);
     await page.pdf({
