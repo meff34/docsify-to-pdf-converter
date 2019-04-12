@@ -24,7 +24,13 @@ const renderPdf = async ({
     const page = await browser.newPage();
     await page.goto(docsifyUrl, { waitUntil: "networkidle0" });
 
-    await runSandboxScript(page, { mainMdFilenameWithoutExt, pathToStatic });
+    const renderProcessingErrors = await runSandboxScript(page, {
+      mainMdFilenameWithoutExt,
+      pathToStatic,
+    });
+
+    if (renderProcessingErrors.length)
+      logger.warn("render processing errors", renderProcessingErrors);
 
     await page.emulateMedia(emulateMedia);
     await page.pdf({

@@ -5,6 +5,8 @@ module.exports = async (page, { mainMdFilenameWithoutExt, pathToStatic }) => {
 
   return page.evaluate(
     ({ mainMdFilenameWithoutExt, pathToStatic }) => {
+      const errors = [];
+
       const makeDocsifyPrettyPrintable = () => {
         const nav = document.querySelector("nav");
         if (nav) nav.remove();
@@ -40,8 +42,12 @@ module.exports = async (page, { mainMdFilenameWithoutExt, pathToStatic }) => {
           node.href = `#${safeId}`;
         });
 
-        const anchorTarget = document.querySelector(`#${decodeURIComponent(unsafeTag)}`);
-        if (anchorTarget) anchorTarget.id = safeId;
+        try {
+          const anchorTarget = document.querySelector(`#${decodeURIComponent(unsafeTag)}`);
+          if (anchorTarget) anchorTarget.id = safeId;
+        } catch (e) {
+          errors.push(e);
+        }
       };
 
       const processSafeInternalLinks = links => {
@@ -90,6 +96,8 @@ module.exports = async (page, { mainMdFilenameWithoutExt, pathToStatic }) => {
       };
 
       main();
+
+      return errors;
     },
     { mainMdFilenameWithoutExt, pathToStatic },
   );

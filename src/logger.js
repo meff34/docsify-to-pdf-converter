@@ -7,8 +7,13 @@ class Logger {
   static info(text) {
     console.log(`\nINFO:\n${text}\n`.blue);
   }
-  static warn(text) {
+  static warn(text, error) {
     console.warn(`\nWARNING:\n${text}\n`.yellow);
+
+    if (error) {
+      console.error(JSON.stringify(error, null, 2).yellow);
+      console.error("\n");
+    }
   }
   static err(text, error) {
     console.error(`\nERROR:\n${text}\n`.red);
