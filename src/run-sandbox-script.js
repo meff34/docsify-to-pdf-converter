@@ -43,8 +43,10 @@ module.exports = async (page, { mainMdFilenameWithoutExt, pathToStatic }) => {
         });
 
         try {
-          const anchorTarget = document.querySelector(`#${decodeURIComponent(unsafeTag)}`);
-          if (anchorTarget) anchorTarget.id = safeId;
+          const headerId = decodeURIComponent(unsafeTag).replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, "");
+          const anchorTarget = document.querySelector(`#${headerId}`);
+
+          anchorTarget.id = safeId;
         } catch (e) {
           errors.push(e);
         }
