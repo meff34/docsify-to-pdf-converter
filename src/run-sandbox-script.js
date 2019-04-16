@@ -48,7 +48,11 @@ module.exports = async (page, { mainMdFilenameWithoutExt, pathToStatic }) => {
 
           anchorTarget.id = safeId;
         } catch (e) {
-          errors.push(e);
+          errors.push({
+            processingAnchor: decodeURIComponent(unsafeTag),
+            error: e.message,
+            stack: e.stack,
+          });
         }
       };
 

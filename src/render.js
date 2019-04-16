@@ -30,7 +30,7 @@ const renderPdf = async ({
     });
 
     if (renderProcessingErrors.length)
-      logger.warn("render processing errors", renderProcessingErrors);
+      logger.warn("anchors processing errors", renderProcessingErrors);
 
     await page.emulateMedia(emulateMedia);
     await page.pdf({
