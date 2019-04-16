@@ -6,7 +6,7 @@
 npm install --save-dev docsify-pdf-converter
 ```
 
-## Usage
+## Usage as CLI:
 
 Create:
 
@@ -30,7 +30,7 @@ Add script into `package.json`:
 ```json
 {
   "scripts": {
-    "convert": "node_modules/.bin/converter"
+    "convert": "node_modules/.bin/docsify-pdf-converter"
   }
 }
 ```
@@ -40,5 +40,28 @@ Run converter:
 ```sh
 npm run convert
 ```
+
+## Usage as npm-package:
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+This part of module is not safe for work - it will stop process after generation pdf. Use it for your own risk.
+You can just import and use main function like this:
+
+```js
+const converter = require('docsify-pdf-converter');
+const config = require('./.docsifytopdfrc.js');
+
+converter(config) // right after resolve or reject inner promise your process will be terminated :C
+```
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
+
+## Contributing
+
+- Fork it!
+- Create your feature branch: `git checkout -b my-new-feature`
+- Commit your changes: `git commit -am 'Add some feature'`
+- Push to the branch: `git push origin my-new-feature`
+- Submit a pull request
+
+Your pull requests and issues are welcome!
 
 [rcfile]: https://www.npmjs.com/package/rcfile
