@@ -35,7 +35,9 @@
     "markdown-link-extractor": "^1.2.0",
     "puppeteer": "^1.12.2",
     "rcfile": "^1.0.3",
+    "remark-parse": "^6.0.3",
     "rimraf": "^2.6.3",
+    "unified": "^7.1.0",
     "yesno": "^0.2.0"
   },
   "devDependencies": {

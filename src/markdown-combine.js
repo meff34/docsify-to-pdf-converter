@@ -2,7 +2,8 @@ const fs = require("fs");
 const util = require("util");
 const path = require("path");
 const logger = require("./logger.js");
-const beautifyImages = require("./beautify-image-paths.js");
+const processImagesPaths = require("./process-images-paths.js");
+const processInnerLinks = require("./process-inner-links.js");
 
 const [readFile, writeFile, exists] = [fs.readFile, fs.writeFile, fs.exists].map(fn =>
   util.promisify(fn),
@@ -33,11 +34,12 @@ const combineMarkdowns = ({ contents, pathToStatic, mainMdFilename }) => async l
 
     try {
       const content = files
-        .map(({ content, name }) => beautifyImages({ pathToStatic })(content, name))
+        .map(processInnerLinks)
+        .map(processImagesPaths({ pathToStatic }))
         .join("\n\n\n\n");
       await writeFile(resultFilePath, content);
     } catch (e) {
-      logger.err(e);
+      logger.err("markdown combining error", e);
       throw e;
     }
 

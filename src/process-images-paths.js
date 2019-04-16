@@ -8,10 +8,10 @@ const isImg = filePath => {
   return extName === ".jpg" || extName === ".png" || extName === ".gif";
 };
 
-module.exports = ({ pathToStatic }) => (content, filePath) => {
+module.exports = ({ pathToStatic }) => ({ content, name }) => {
   let markdown = content;
-  const dir = path.dirname(filePath);
-  const static = path.resolve(process.cwd(), pathToStatic);
+  const dir = path.dirname(name);
+  const dirWithStatic = path.resolve(process.cwd(), pathToStatic);
 
   markdownLinkExtractor(content)
     .filter(link => !isUrl(link))
@@ -19,7 +19,7 @@ module.exports = ({ pathToStatic }) => (content, filePath) => {
     .map(link => ({ origin: link, processed: path.resolve(dir, link) }))
     .map(({ origin, processed }) => ({
       origin,
-      processed: path.relative(static, processed),
+      processed: path.relative(dirWithStatic, processed),
     }))
     .forEach(({ origin, processed }) => {
       markdown = markdown.replace(origin, processed);
