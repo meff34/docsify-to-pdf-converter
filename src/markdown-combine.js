@@ -9,10 +9,23 @@ const [readFile, writeFile, exists] = [fs.readFile, fs.writeFile, fs.exists].map
   util.promisify(fn),
 );
 
+const parseFilename = (filename) => {
+  if(filename.includes("#")) {
+    return filename.split("#")[0];
+  }
+  if(filename.includes("?id=")) {
+    return filename.split("?id=")[0];
+  }
+  return filename;
+}
+
 const combineMarkdowns = ({ contents, pathToStatic, mainMdFilename }) => async links => {
   try {
     const files = await Promise.all(
       await links.map(async filename => {
+
+        filename = parseFilename(filename);
+        
         const fileExist = await exists(filename);
 
         if (fileExist) {
