@@ -31,7 +31,7 @@
     "docsify-cli": "^4.3.0",
     "find-free-port": "^2.0.0",
     "is-url": "^1.2.4",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "markdown-link-extractor": "^1.2.0",
     "puppeteer": "^1.12.2",
     "rcfile": "^1.0.3",
