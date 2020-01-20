@@ -4,7 +4,9 @@ const logger = require("./logger.js");
 const getFreePorts = require("./free-port.js");
 
 const defaultConfig = {
-  pathToStatic: "static",
+  quiet: false,
+  processImages: true,
+  pathToStatic: "static",  
   mainMdFilename: "main.md",
   removeTemp: true,
   contents: "docs/_sidebar.md",
@@ -34,7 +36,11 @@ const run = async incomingConfig => {
   const { htmlToPdf } = require("./render.js")(config);
 
   try {
-    await cleanUp();
+    if(!config.quiet)
+    {
+      await cleanUp();
+    }
+
     await prepareEnv();
     const roadMap = await createRoadMap();
     await combineMarkdowns(roadMap);

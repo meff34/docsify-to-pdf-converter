@@ -9,7 +9,7 @@ const [readFile, writeFile, exists] = [fs.readFile, fs.writeFile, fs.exists].map
   util.promisify(fn),
 );
 
-const combineMarkdowns = ({ contents, pathToStatic, mainMdFilename }) => async links => {
+const combineMarkdowns = ({ contents, pathToStatic, mainMdFilename, processImages }) => async links => {
   try {
     const files = await Promise.all(
       await links.map(async filename => {
@@ -35,7 +35,7 @@ const combineMarkdowns = ({ contents, pathToStatic, mainMdFilename }) => async l
     try {
       const content = files
         .map(processInnerLinks)
-        .map(processImagesPaths({ pathToStatic }))
+        .map(processImagesPaths({ pathToStatic }, processImages))
         .join("\n\n\n\n");
       await writeFile(resultFilePath, content);
     } catch (e) {
