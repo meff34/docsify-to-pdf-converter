@@ -32,7 +32,6 @@ const combineMarkdowns = ({ contents, pathToStatic, mainMdFilename, processImage
 
     const resultFilePath = path.resolve(pathToStatic, mainMdFilename);
 
-    logger.info("ProcessImages: " + processImages);
     try {
       const content = files
         .map(processInnerLinks)
