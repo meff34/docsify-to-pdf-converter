@@ -16,6 +16,7 @@ const renderPdf = async ({
       width: 1200,
       height: 1000,
     },
+    args: ["--no-sandbox"]
   });
   try {
     const mainMdFilenameWithoutExt = path.parse(mainMdFilename).name;
