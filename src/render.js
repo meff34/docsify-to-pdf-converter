@@ -12,6 +12,7 @@ const renderPdf = async ({
   emulateMedia,
 }) => {
   const browser = await puppeteer.launch({
+    timeout: 0,
     defaultViewport: {
       width: 1200,
       height: 1000,
