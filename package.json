@@ -32,7 +32,7 @@
     "find-free-port": "^2.0.0",
     "is-url": "^1.2.4",
     "lodash": "^4.17.11",
-    "markdown-link-extractor": "^1.2.0",
+    "markdown-link-extractor": "^3.0.2",
     "puppeteer": "^1.12.2",
     "rcfile": "^1.0.3",
     "remark-parse": "^6.0.3",
