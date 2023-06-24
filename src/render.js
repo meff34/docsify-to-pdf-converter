@@ -16,10 +16,16 @@ const renderPdf = async ({
       width: 1200,
       height: 1000,
     },
+    args: [
+        "--no-sandbox"
+    ]
   });
   try {
     const mainMdFilenameWithoutExt = path.parse(mainMdFilename).name;
-    const docsifyUrl = `http://localhost:${docsifyRendererPort}/#/${pathToStatic}/${mainMdFilenameWithoutExt}`;
+
+    // Don't include the parent folder for the docsifyUrl.
+    pathToStatic = pathToStatic.split('/');
+    const docsifyUrl = `http://localhost:${docsifyRendererPort}/#/${pathToStatic[1]}/${mainMdFilenameWithoutExt}`;
 
     const page = await browser.newPage();
     await page.goto(docsifyUrl, { waitUntil: "networkidle0" });
