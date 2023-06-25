@@ -22,10 +22,7 @@ const renderPdf = async ({
   });
   try {
     const mainMdFilenameWithoutExt = path.parse(mainMdFilename).name;
-
-    // Don't include the parent folder for the docsifyUrl.
-    pathToStatic = pathToStatic.split('/');
-    const docsifyUrl = `http://localhost:${docsifyRendererPort}/#/${pathToStatic[1]}/${mainMdFilenameWithoutExt}`;
+    const docsifyUrl = `http://localhost:${docsifyRendererPort}/#/${pathToStatic}/${mainMdFilenameWithoutExt}`;
 
     const page = await browser.newPage();
     await page.goto(docsifyUrl, { waitUntil: "networkidle0" });
@@ -59,8 +56,9 @@ const htmlToPdf = ({
   removeTemp,
   docsifyRendererPort,
   emulateMedia,
+  pathToDocsifyEntryPoint
 }) => async () => {
-  const { closeProcess } = require("./utils.js")({ pathToStatic, removeTemp });
+  const { closeProcess } = require("./utils.js")({ pathToStatic, removeTemp, pathToDocsifyEntryPoint });
   try {
     return await renderPdf({
       mainMdFilename,
