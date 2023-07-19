@@ -16,6 +16,9 @@ const renderPdf = async ({
       width: 1200,
       height: 1000,
     },
+    args: [
+        "--no-sandbox"
+    ]
   });
   try {
     const mainMdFilenameWithoutExt = path.parse(mainMdFilename).name;
@@ -53,8 +56,9 @@ const htmlToPdf = ({
   removeTemp,
   docsifyRendererPort,
   emulateMedia,
+  pathToDocsifyEntryPoint
 }) => async () => {
-  const { closeProcess } = require("./utils.js")({ pathToStatic, removeTemp });
+  const { closeProcess } = require("./utils.js")({ pathToStatic, removeTemp, pathToDocsifyEntryPoint });
   try {
     return await renderPdf({
       mainMdFilename,
